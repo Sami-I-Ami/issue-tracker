@@ -36,13 +36,11 @@ module.exports = function (app) {
           open: true,
           status_text: status_text
         };
-        const currentProject = issues.filter((projectIssues) => 
-          projectIssues.project_name == project
-        );
-        if (!currentProject) {
+        const index = issues.findIndex((projectIssues) => projectIssues.project_name == project);
+        console.log(index);
+        if (index === -1) {
           issues.push({project_name: project, issues: [issueObj]});
         } else {
-          index = issues.indexOf(currentProject);
           issues[index].issues.push(issueObj);
         }
         console.log(issues);
