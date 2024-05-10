@@ -36,7 +36,16 @@ module.exports = function (app) {
           open: true,
           status_text: status_text
         };
-        issues.push({project_name: project, issueObj})
+        const currentProject = issues.filter((projectIssues) => 
+          projectIssues.project_name == project
+        );
+        if (!currentProject) {
+          issues.push({project_name: project, issues: [issueObj]});
+        } else {
+          index = issues.indexOf(currentProject);
+          issues[index].issues.push(issueObj);
+        }
+        console.log(issues);
         res.json(issueObj);
       }
     })
