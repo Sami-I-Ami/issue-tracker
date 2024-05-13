@@ -9,13 +9,13 @@ module.exports = function (app) {
   
     .get(function (req, res){
       let project = req.params.project;
-      
+      res.json({return: "blank"});
     })
     
     .post(function (req, res){
       let project = req.params.project;
       let { issue_title, issue_text, created_by, assigned_to, status_text } = req.body;
-      if (!issue_title.trim() | !issue_text.trim() | !created_by.trim()) {
+      if (!issue_title | !issue_text | !created_by) {
         res.json({error: 'required field(s) missing'});
       } else {
         currentId++;
@@ -26,7 +26,7 @@ module.exports = function (app) {
           status_text = "";
         }
         const issueObj = {
-          _id: currentId,
+          _id: currentId.toString(),
           issue_title: issue_title,
           issue_text: issue_text,
           created_on: new Date(),
@@ -37,25 +37,23 @@ module.exports = function (app) {
           status_text: status_text
         };
         const index = issues.findIndex((projectIssues) => projectIssues.project_name == project);
-        console.log(index);
         if (index === -1) {
           issues.push({project_name: project, issues: [issueObj]});
         } else {
           issues[index].issues.push(issueObj);
         }
-        console.log(issues);
         res.json(issueObj);
       }
     })
     
     .put(function (req, res){
       let project = req.params.project;
-      
+      res.json({return: "blank"});
     })
     
     .delete(function (req, res){
       let project = req.params.project;
-      
+      res.json({return: "blank"});
     });
     
 };
