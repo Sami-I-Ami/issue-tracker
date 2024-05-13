@@ -9,7 +9,13 @@ module.exports = function (app) {
   
     .get(function (req, res){
       let project = req.params.project;
-      res.json({return: "blank"});
+      const index = issues.findIndex((projectIssues) => projectIssues.project_name == project);
+      let issueList = issues[index].issues;
+      const queries = req.query;
+      for (const key in queries) {
+        issueList = issueList.filter((issue) => issue[key] == queries[key]);
+      }
+      res.send(issueList);
     })
     
     .post(function (req, res){
