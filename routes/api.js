@@ -54,7 +54,7 @@ module.exports = function (app) {
     
     .put(function (req, res){
       let project = req.params.project;
-      let { _id, issue_title, issue_text, created_by, assigned_to, status_text, open } = req.body;
+      const { _id, issue_title, issue_text, created_by, assigned_to, status_text, open } = req.body;
       if (!_id) {
         res.json({error: "missing _id"})
       } else if (!issue_title & !issue_text & !created_by & !assigned_to & !status_text & !open) {
@@ -83,7 +83,19 @@ module.exports = function (app) {
     
     .delete(function (req, res){
       let project = req.params.project;
-      res.json({return: "blank"});
+      const _id = req.body._id;
+      if (!_id) {
+        res.json({error: "missing _id"})
+      } else {
+        const index = issues.findIndex((projectIssues) => projectIssues.project_name == project);
+        const issueIndex = issues[index].issues.findIndex((issue) => issue._id == _id);
+        if (issueIndex == -1) {
+          res.json({error: "could not delete", _id});
+        } else {
+          issues[index].issues.splice(issueIndex, 1);
+          res.json({result: "successfully deleted", _id});
+        }
+      }
     });
     
 };
