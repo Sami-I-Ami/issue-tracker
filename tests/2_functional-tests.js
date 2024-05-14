@@ -7,6 +7,7 @@ chai.use(chaiHttp);
 
 suite('Functional Tests', function() {
     this.timeout(5000);
+    // POST
     test('POST with every input', function (done) {
         chai
           .request(server)
@@ -75,6 +76,8 @@ suite('Functional Tests', function() {
             done();
           });
     });
+
+    // GET
     test('GET full issue list', function (done) {
         chai
           .request(server)
@@ -101,4 +104,151 @@ suite('Functional Tests', function() {
             done();
           });
     });
+    test('GET issue list with multiple filters', function (done) {
+      chai
+        .request(server)
+        .keepOpen()
+        .get('/api/issues/test?open=true&created_by=Me')
+        .end(function (err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(res.type, 'application/json');
+          assert.isArray(res.body);
+          assert.equal(res.body.length, 1);
+          done();
+        });
+  });
+
+  // PUT
+  test('PUT one field', function (done) {
+    chai
+      .request(server)
+      .keepOpen()
+      .put('/api/issues/test')
+      .send({
+        _id: "1",
+        assigned_to: "A worker"
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
+        assert.equal(res.body.result, "successfully updated");
+        assert.equal(res.body._id, "1");
+        done();
+      });
+  });
+  test('PUT multiple fields', function (done) {
+    chai
+      .request(server)
+      .keepOpen()
+      .put('/api/issues/test')
+      .send({
+        _id: "1",
+        assigned_to: "A new worker",
+        status_text: "We're working on it"
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
+        assert.equal(res.body.result, "successfully updated");
+        assert.equal(res.body._id, "1");
+        done();
+      });
+  });
+  test('PUT without _id', function (done) {
+    chai
+      .request(server)
+      .keepOpen()
+      .put('/api/issues/test')
+      .send({
+        assigned_to: "Who"
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
+        assert.equal(res.body.error, "missing _id");
+        done();
+      });
+  });
+  test('PUT without fields', function (done) {
+    chai
+      .request(server)
+      .keepOpen()
+      .put('/api/issues/test')
+      .send({
+        _id: "1"
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
+        assert.equal(res.body.error, "no update field(s) sent");
+        assert.equal(res.body._id, "1");
+        done();
+      });
+  });
+  test('PUT invalid _id', function (done) {
+    chai
+      .request(server)
+      .keepOpen()
+      .put('/api/issues/test')
+      .send({
+        _id: "3",
+        assigned_to: "Doesn't exist"
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
+        assert.equal(res.body.error, "could not update");
+        assert.equal(res.body._id, "3");
+        done();
+      });
+  });
+
+  // DELETE
+  test('DELETE valid _id', function (done) {
+    chai
+      .request(server)
+      .keepOpen()
+      .delete('/api/issues/test')
+      .send({
+        _id: "2"
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
+        assert.equal(res.body.result, "successfully deleted");
+        assert.equal(res.body._id, "2");
+        done();
+      });
+  });
+  test('DELETE invalid _id', function (done) {
+    chai
+      .request(server)
+      .keepOpen()
+      .delete('/api/issues/test')
+      .send({
+        _id: "5"
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
+        assert.equal(res.body.error, "could not delete");
+        assert.equal(res.body._id, "5");
+        done();
+      });
+  });
+  test('DELETE missing _id', function (done) {
+    chai
+      .request(server)
+      .keepOpen()
+      .delete('/api/issues/test')
+      .send({
+        not_id: "hi"
+      })
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
+        assert.equal(res.body.error, "missing _id");
+        done();
+      });
+  });
 });
