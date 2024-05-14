@@ -54,7 +54,31 @@ module.exports = function (app) {
     
     .put(function (req, res){
       let project = req.params.project;
-      res.json({return: "blank"});
+      let { _id, issue_title, issue_text, created_by, assigned_to, status_text, open } = req.body;
+      if (!_id) {
+        res.json({error: "missing _id"})
+      } else if (!issue_title & !issue_text & !created_by & !assigned_to & !status_text & !open) {
+        res.json({error: "no update field(s) sent", _id})
+      } else {
+        const index = issues.findIndex((projectIssues) => projectIssues.project_name == project);
+        const issueIndex = issues[index].issues.findIndex((issue) => issue._id == _id);
+        let issueToUpdate = issues[index].issues[issueIndex];
+        issues[index].issues.splice(issueIndex, 1);
+        const updatedValues = [issue_title, issue_text, created_by, assigned_to, status_text, open];
+        const valueLabels = ["issue_title", "issue_text", "created_by", "assigned_to", "status_text", "open"];
+        try{
+          for (let i = 0; i < updatedValues.length; i++) {
+            if (updatedValues[i]) {
+              issueToUpdate[valueLabels[i]] = updatedValues[i];
+            }
+          }
+          issueToUpdate.updated_on = new Date(); 
+          issues[index].issues.push(issueToUpdate);
+          res.json({result: "successfully updated", _id}) 
+        } catch (err) {
+          res.json({error: "could not update", _id});
+        }
+      }
     })
     
     .delete(function (req, res){
