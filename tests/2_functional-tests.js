@@ -97,7 +97,7 @@ suite('Functional Tests', function() {
             assert.equal(res.status, 200);
             assert.equal(res.type, 'application/json');
             assert.isArray(res.body);
-            console.log(res.body);
+            assert.equal(res.body.length, 2);
             done();
           });
     });

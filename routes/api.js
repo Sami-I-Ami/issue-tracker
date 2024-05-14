@@ -13,7 +13,15 @@ module.exports = function (app) {
       let issueList = issues[index].issues;
       const queries = req.query;
       for (const key in queries) {
-        issueList = issueList.filter((issue) => issue[key] == queries[key]);
+        if (key == "open") {
+          if (queries[key] == "true") {
+            issueList = issueList.filter((issue) => issue.open == true);
+          } else {
+            issueList = issueList.filter((issue) => issue.open == false); 
+          }
+        } else {
+          issueList = issueList.filter((issue) => issue[key] == queries[key]);
+        }
       }
       res.send(issueList);
     })
